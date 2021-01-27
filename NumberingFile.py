@@ -22,7 +22,10 @@ import sqlite3
 # import webbrowser
 
 ############################################################
+# メインクラス
 class app(tk.Frame):
+
+    # Enterで実行（初期）
     def callback(event):
         # 条件一覧取得
         
@@ -49,25 +52,53 @@ class app(tk.Frame):
         # 取得＆チェック
         txtno = RegNo.get()
         txtname = RegName.get()
-        #txtrmk = RegRemark.get()
+        txtrmk = RegRemark.get()
         if txtno == "" or txtname == "":
             agcls.alert("No. と 名字 は必須です。")
             return
 
-        # SQLite接続
+        #insert 文生成
+        ins_sql = """INSERT INTO acc_data(no, name, remark) 
+                    VALUES('{}' ,'{}', '{}');
+                """.format(txtno, txtname, txtrmk)
 
-        # insert処理        
+        # SQLite接続
+        # insert処理
+        c = DB.connect_sqlite()
+        c.execute(ins_sql)        
+        c.execute("COMMIT;")
+
+        # 登録後後処理
+        # tableに追加
+        recVal = txtno, txtname, txtrmk
+        tree.insert("", "end", values=(recVal))
+
+        # txtクリア
+        RegNo.delete(0, tk.END)
+        RegName.delete(0, tk.END)
+        RegRemark.delete(0, tk.END)
+
+        #dbg 登録データ一覧表示
+        # DB.Chk_acc_data()
 
         print("DBG:RegDB")
 
-    # データ取得（仮）
-    def SelDB():
-        print("DBG:SelDB")
-        
+    # データ取得＆設定
+    def SetTree():
+        dbname = "database.db"
+        c = sqlite3.connect(dbname)
+        # selectして結果をテーブルにinsert
+        for r in c.execute("select * from acc_data"):
+            recVal = r[1], r[2], r[3]
+            tree.insert("", "end", values=(recVal))
+#           tree.insert("","end",values=("01","岩田","備考"))
+        print("DBG:SetTree")
+#
+# 次・treeにスクロールバー、削除ボタン、ファイルリネーム
+#
 
-
-
-# アラート出力
+###################################################
+# アラート出力クラス
 class agcls():
     def alert(str):
         ag.alert(text=str, title='アラート', button='OK')
@@ -75,13 +106,15 @@ class agcls():
     def msgdlg(str):
         ag.prompt(text=str, title='アラート', default='msgab')
 
-# DB処理
+###################################################
+# DB処理クラス
 class DB():
     def init_sqlite():
         # 空のデータベースを作成して接続する
-        dbname = "database.db"
-        c = sqlite3.connect(dbname)
-        c.execute("PRAGMA foreign_keys = 1")
+        # dbname = "database.db"
+        # c = sqlite3.connect(dbname)
+        # c.execute("PRAGMA foreign_keys = 1")
+        c = DB.connect_sqlite()
 
         # 既にデータベースが登録されている場合は、ddlの発行でエラーが出るのでexceptブロックで回避する
         try:
@@ -90,7 +123,7 @@ class DB():
             CREATE TABLE acc_data
             ( 
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                no INTEGER NOT NULL UNIQUE,
+                no text NOT NULL UNIQUE,
                 name text NOT NULL UNIQUE,
                 remark text
                 );
@@ -107,6 +140,14 @@ class DB():
         except:
                 pass
 
+    # 空のデータベースを作成して接続する
+    def connect_sqlite():
+        dbname = "database.db"
+        c = sqlite3.connect(dbname)
+        c.execute("PRAGMA foreign_keys = 1")
+        return c        
+
+    # デバッグ用：コンソールにDB情報出力
     def Chk_acc_data():
         dbname = "database.db"
         c = sqlite3.connect(dbname)
@@ -116,8 +157,8 @@ class DB():
 
 ########################################
 # 処理開始
-DB.init_sqlite()
-DB.Chk_acc_data()   #DBG
+DB.init_sqlite()    # DB生成
+DB.Chk_acc_data()   #DBG ファイルの中を表示
 root = tk.Tk()
 
 # Windowの定義 常に最前表示
@@ -146,7 +187,6 @@ label.pack(fill="x")
 txt = tk.Entry(width=65)
 #txt.place(x=10, y=50)
 txt.pack()
-#txt.insert(0, 'テキスト文字列')
 txt.insert(0, './*')
 
 #ラベル
@@ -170,13 +210,14 @@ tree.heading(2,text="検索キー")
 tree.heading(3,text="備考")
 
 # レコードの作成
+app.SetTree()
 # 1番目の引数-配置場所（ツリー形式にしない表設定ではブランクとする）
 # 2番目の引数-end:表の配置順序を最下部に配置
 #             (行インデックス番号を指定することもできる)
 # 3番目の引数-values:レコードの値をタプルで指定する
-tree.insert("","end",values=("01","岩田","備考"))
-tree.insert("","end",values=("02","丹羽","ビコウ"))
-tree.insert("","end",values=("03","山田","Bikou"))
+# tree.insert("","end",values=("01","岩田","備考"))
+# tree.insert("","end",values=("02","丹羽","ビコウ"))
+# tree.insert("","end",values=("03","山田","Bikou"))
 # ツリービューの配置
 tree.pack()
 #tree.place(x = 10, y = 80)
