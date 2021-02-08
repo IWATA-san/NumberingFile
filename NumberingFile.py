@@ -18,6 +18,9 @@ import glob
 # SQLite
 import sqlite3
 
+# os
+import os
+
 # seleniumライブラリのインポート
 # import webbrowser
 
@@ -37,9 +40,26 @@ class app(tk.Frame):
             
             # ファイル一覧取得
             files = glob.glob(txtstr)   # 条件追加する
+            #dbg用
             for file in files:
                 print(file)
 
+            # 条件取得
+            dbname = "database.db"
+            c = sqlite3.connect(dbname)
+            # recs = c.execute("select * from acc_data")
+
+            # selectして結果をテーブルにinsert
+            for file in files:
+                # 検索条件数 ループ（毎回selectしてるのは先頭レコード指定が不明だったから)
+                for r in c.execute("select * from acc_data"):
+                    # ファイル名に検索条件が含まれている場合
+                    if r[2] in file :
+                        # リネーム処理
+                        # print(format(r[1]) + '_' + file[2:]) # dbg
+                        # 番号2桁設定＋ファイル名から"./"を除いたものを連結
+                        os.rename(file,  '{no:02}'.format(no=r[1]) + '_' + file[2:])
+                        break
 
             # 検索するやーつ
             # url = 'https://www.google.co.jp/search?q=' + search_word
@@ -91,11 +111,12 @@ class app(tk.Frame):
         for r in c.execute("select * from acc_data"):
             recVal = r[1], r[2], r[3]
             tree.insert("", "end", values=(recVal))
-#           tree.insert("","end",values=("01","岩田","備考"))
         print("DBG:SetTree")
-#
-# 次・treeにスクロールバー、削除ボタン、ファイルリネーム
-#
+
+    # 次・削除ボタン　★
+    def DelRecord():
+        print("DBG:DelRecord")
+        
 
 ###################################################
 # アラート出力クラス
