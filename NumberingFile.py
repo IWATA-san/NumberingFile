@@ -152,11 +152,11 @@ class DB():
             c.execute(ddl)
 
             # サンプル登録
-            c.execute("INSERT INTO acc_data(no, name, remark) VALUES('01', '岩田', '備考');")
-            c.execute("INSERT INTO acc_data(no, name, remark) VALUES('02', '丹羽', 'ビコウ');")
-            c.execute("INSERT INTO acc_data(no, name, remark) VALUES('03', '山田', 'Bikou');")
-            c.execute("COMMIT;")
-            print("success init_sqlite")
+#            c.execute("INSERT INTO acc_data(no, name, remark) VALUES('01', '岩田', '備考');")
+#            c.execute("INSERT INTO acc_data(no, name, remark) VALUES('02', '丹羽', 'ビコウ');")
+#            c.execute("INSERT INTO acc_data(no, name, remark) VALUES('03', '山田', 'Bikou');")
+#            c.execute("COMMIT;")
+#            print("success init_sqlite")
 
         except:
                 pass
@@ -184,19 +184,21 @@ root = tk.Tk()
 
 # Windowの定義 常に最前表示
 root.attributes("-topmost", True)
-root.title("すぐぐる")
-root.geometry("420x500")
+root.title("NumberingFile")
+root.geometry("420x440")    # windowサイズ指定
+root.resizable(width=False, height=False)   # 画面サイズ固定
 
+# フレーム一旦凍結
 # フレームの作成（フレームをrootに配置,フレーム淵を2pt,フレームの形状をridge）
-frame = tk.Label(root, bd=2, relief="raised")
+#frame = tk.Label(root, bd=2, relief="raised")
 # フレームを画面に配置し、横方向に余白を拡張する
-frame.pack(fill="x")
+#frame.pack(fill="x")
 
 # 入力ボタン
-InBtn = tk.Button(frame, text="登録")
-InBtn.pack(side="left")    # 左寄せ
-FinBtn = tk.Button(frame,text="終了")
-FinBtn.pack(anchor="ne")
+# InBtn = tk.Button(frame, text="登録")
+# InBtn.pack(side="left")    # 左寄せ
+# FinBtn = tk.Button(frame,text="終了")
+# FinBtn.pack(anchor="ne")
 
 ###
 #ラベル
@@ -222,15 +224,15 @@ tree["columns"] = (1,2,3)
 # 表スタイルの設定(headingsはツリー形式ではない、通常の表形式)
 tree["show"] = "headings"
 # 各列の設定(インデックス,オプション(今回は幅を指定))
-tree.column(1,width=75)
-tree.column(2,width=75)
+tree.column(1,width=100)
+tree.column(2,width=100)
 tree.column(3,width=100)
 # 各列のヘッダー設定(インデックス,テキスト)
 tree.heading(1,text="付与No.")
 tree.heading(2,text="検索キー")
 tree.heading(3,text="備考")
 
-# レコードの作成
+# レコードの作成(dbファイル読み込み＆テーブルにinsert)
 app.SetTree()
 # 1番目の引数-配置場所（ツリー形式にしない表設定ではブランクとする）
 # 2番目の引数-end:表の配置順序を最下部に配置
@@ -243,15 +245,15 @@ app.SetTree()
 tree.pack()
 #tree.place(x = 10, y = 80)
 
-###
+##############
 # 登録フォーム
 # ラベル
 label = tk.Label(root, text="【登録】No. 名字 ビコウ")
 label.pack(fill="x")
 # テキストボックス
-RegNo = tk.Entry(width=20)
+RegNo = tk.Entry(width=40)
 RegNo.pack()
-RegName = tk.Entry(width=20)
+RegName = tk.Entry(width=40)
 RegName.pack()
 RegRemark = tk.Entry(width=40)
 RegRemark.pack()
