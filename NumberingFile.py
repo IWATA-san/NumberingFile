@@ -33,39 +33,45 @@ class app(tk.Frame):
         # 条件一覧取得
         
         #　フォルダ・ファイル一覧 取得
-        txtstr = txt.get()
-        if txtstr != "":
+        txtstr = txt.get()  #フルパスゲット
+        if txtstr == "":        # 入力チェック
             #autogui(alert)
             #agcls.alert(txtstr)
+            return
+
+        # ファイル一覧取得
+        files = glob.glob(txtstr)   # 条件追加する
+        #dbg用
+        for file in files:
+            print(file)
+
+        # 条件取得
+        dbname = "database.db"
+        c = sqlite3.connect(dbname)
+
+        # カレントディレクトリ移動
+        cdir = os.path.dirname(txtstr)
+        os.chdir(cdir)
+
+        # selectして結果をテーブルにinsert
+        for file in files:
+            # フルパスからファイル名取得
+            file = os.path.basename(file)
             
-            # ファイル一覧取得
-            files = glob.glob(txtstr)   # 条件追加する
-            #dbg用
-            for file in files:
-                print(file)
+            # 検索条件数 ループ（毎回selectしてるのは先頭レコード指定が不明だったから)
+            for r in c.execute("select * from acc_data"):
+                # ファイル名に検索条件が含まれている場合
+                if r[2] in file :
+                    # リネーム処理
+                    # print(format(r[1]) + '_' + file[2:]) # dbg
+                    # 番号2桁設定＋ファイル名から"./"を除いたものを連結
+                    #os.rename(file,  '{no:02}'.format(no=r[1]) + '_' + file[2:])
+                    os.rename(file,  r[1] + '_' + file[0:])
+                    print("rename" + file + " " + r[1] + '_' + file[2:])
+                    break
 
-            # 条件取得
-            dbname = "database.db"
-            c = sqlite3.connect(dbname)
-            # recs = c.execute("select * from acc_data")
-
-            # selectして結果をテーブルにinsert
-            for file in files:
-                # 検索条件数 ループ（毎回selectしてるのは先頭レコード指定が不明だったから)
-                for r in c.execute("select * from acc_data"):
-                    # ファイル名に検索条件が含まれている場合
-                    if r[2] in file :
-                        # リネーム処理
-                        # print(format(r[1]) + '_' + file[2:]) # dbg
-                        # 番号2桁設定＋ファイル名から"./"を除いたものを連結
-                        os.rename(file,  '{no:02}'.format(no=r[1]) + '_' + file[2:])
-                        break
-
-            # 検索するやーつ
-            # url = 'https://www.google.co.jp/search?q=' + search_word
-            # webbrowser.open(url)
-            # txt.delete(0, tk.END)
-
+        # 完了Msg
+        agcls.alert("完了しました。")
 
     # 登録ボタンクリック時
     def RegDB():
