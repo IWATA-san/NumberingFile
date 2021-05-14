@@ -32,6 +32,7 @@ class app(tk.Frame):
     def callback(event):
         # 条件一覧取得
         
+        #######################
         #　フォルダ・ファイル一覧 取得
         txtstr = txt.get()  #フルパスゲット
         if txtstr == "":        # 入力チェック
@@ -39,25 +40,29 @@ class app(tk.Frame):
             #agcls.alert(txtstr)
             return
 
+        ###############
         # ファイル一覧取得
         files = glob.glob(txtstr)   # 条件追加する
         #dbg用
         for file in files:
             print(file)
 
+        #########
         # 条件取得
         dbname = "database.db"
         c = sqlite3.connect(dbname)
 
+        ###################
         # カレントディレクトリ移動
         cdir = os.path.dirname(txtstr)
         os.chdir(cdir)
 
-        # selectして結果をテーブルにinsert
+        ##########################################
+        # ファイルを基準にDBをから条件を検索してリネーム処理
         for file in files:
             # フルパスからファイル名取得
             file = os.path.basename(file)
-            
+
             # 検索条件数 ループ（毎回selectしてるのは先頭レコード指定が不明だったから)
             for r in c.execute("select * from acc_data"):
                 # ファイル名に検索条件が含まれている場合
